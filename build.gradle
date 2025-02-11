@@ -5,11 +5,11 @@ plugins {
 // Change the values below this to your mods values
 // To change the project name, edit the settings.gradle file
 
-project.ext.modID = "questlogminimizer" // The unique id of your mod. Must be all lowercase and cannot use special characters.
-project.ext.modName = "Quest Log Minimizer" // The display name of your mod.
-project.ext.modVersion = "0.0.1" // Your current builds version. Must follow the xx.xx... format.
+project.ext.modID = "questtrackerminimizer" // The unique id of your mod. Must be all lowercase and cannot use special characters.
+project.ext.modName = "Quest Tracker Minimize Button" // The display name of your mod.
+project.ext.modVersion = "0.1.0" // Your current builds version. Must follow the xx.xx... format.
 project.ext.gameVersion = "0.30.0" // The target game version.
-project.ext.modDescription = "Adds a quest log minimizer button, and reclaims half your screen space." // Short description of what your mod is.
+project.ext.modDescription = "Adds a quest log minimize/maximize button, and reclaims half your screen space." // Short description of what your mod is.
 project.ext.author = "FerrenF" // Your name
 
 /**
