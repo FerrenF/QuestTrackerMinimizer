@@ -10,7 +10,7 @@ project.ext.modName = "Quest Tracker Minimize Button" // The display name of you
 project.ext.modVersion = "0.1.0" // Your current builds version. Must follow the xx.xx... format.
 project.ext.gameVersion = "0.30.0" // The target game version.
 project.ext.modDescription = "Adds a quest log minimize/maximize button, and reclaims half your screen space." // Short description of what your mod is.
-project.ext.author = "FerrenF" // Your name
+project.ext.author = "FerrenFx" // Your name
 
 /**
  * When setting clientside to true, it means servers do not need this mod for clients to connect and vice versa.
