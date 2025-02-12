@@ -31,8 +31,8 @@ public class QuestLogMinimizer {
 	private QuestTrackerMinimizeButtonForm currentMinimizerForm;
 	private static QuestLogMinimizer CurrentInstance;
 	private boolean game_initialized = false;
-	private int stored_position_x = 0; // unused/planned. intended for emergency position reset
-	private boolean stored_state = true; // maximized by default. use to persist maximization between levels in the future.
+	private int stored_position_x = 0; // used for emergency position reset
+	private boolean stored_state = true; //  used to persist maximization between levels in the future.
 
 	public static void oops(String how) {
 		GameLog.out.println(how);
@@ -41,6 +41,10 @@ public class QuestLogMinimizer {
     public void init() {
     	GameLog.out.println("QuestLogMinimizer initialized.");
         if(CurrentInstance == null) CurrentInstance = this;         
+    }
+    
+    public void setStoredState(boolean state) {
+    	this.stored_state = state;
     }
     
     public void gameLoadedEvent(MainGameFormManager formManager) {    	
@@ -72,17 +76,14 @@ public class QuestLogMinimizer {
     
     public void mainFormUpdateEvent(MainGameFormManager formManager) {    	
     	
-    	// Periodically, the game will redraw the components on the main form without initializing a new form.
+    	// Periodically, the game will redraw the components on parts of the MainGameFormManager without initializing a new form.
     	// We want to intercept this and then check for the presence of our button.
     	
     	// First, let's ensure the game is initialized.
     	if (!this.game_initialized) return;
     	if (this.questTrackerComponent == null)return;
     	if (getQLMDebugState()) oops("Form Update Event Called");
-    	
-    	// Then, let's reset the current state of the button, because the game has likely redrawn the components at the right position.
-    	this.stored_state = true;
-    	
+    	   	
     	// Set class references to current FormManager.
     	this.mainGameFormManager = formManager;         	 	
     	    	
@@ -101,12 +102,15 @@ public class QuestLogMinimizer {
         	// It's likely we will need to do our initial 'bump' too.
     		this.doInitialComponentBump();
     		this.questTrackerComponent.addComponent(nf);   		
+    		
+    		// Finally, restore the stored state. We only need to do this is the stored state is false (minimized). This should be triggered through the form.
+    		if(!this.stored_state) this.currentMinimizerForm.setButtonState(this.stored_state);
     	}
     }
     
     public void qlmToggleEventTriggered(QuestTrackerMinimizeButtonForm source, boolean state){
     	if (getQLMDebugState()) oops("qlmToggleEventTriggered method called with button state "+String.valueOf(state));
-    	this.stored_state = state;
+    	this.setStoredState(state);
     	this.doEventBump(state);    		
     }
     public void doInitialComponentBump() {
