@@ -19,6 +19,7 @@ This mod adds a minimize/maximize button to the quest tracker in **Necesse**, al
 - DONE: ~~Persistence Between Loading Screens~~ – The tracker’s minimized/maximized state will be remembered. 
 
 ## Version History  
+- **0.2.1** – Enabled clientside. You should no longer need to install this on the server to have it work for clients.  
 - **0.2.0** – Maximization state now persists across loading screens.  
 - **0.1.0** – Initial release with basic minimize/maximize functionality.  
 
