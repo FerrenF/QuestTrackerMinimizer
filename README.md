@@ -1,4 +1,4 @@
-# Necesse Quest Tracker Minimize Button  
+# Necesse Quest Tracker Minimize Button 0.2.0
 
 ![Preview](./Preview.png)  
 
@@ -16,9 +16,10 @@ This mod adds a minimize/maximize button to the quest tracker in **Necesse**, al
 3. Launch the game, and enjoy your customizable quest tracker!  
 
 ## Planned Updates  
-- **Persistence Between Loading Screens** – The tracker’s minimized/maximized state will be remembered.  
+- ~~**Persistence Between Loading Screens** – The tracker’s minimized/maximized state will be remembered.  ~~
 
 ## Version History  
+- **0.2.0** – Maximization state now persists across loading screens.  
 - **0.1.0** – Initial release with basic minimize/maximize functionality.  
 
 ## Compatibility  
