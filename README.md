@@ -16,7 +16,7 @@ This mod adds a minimize/maximize button to the quest tracker in **Necesse**, al
 3. Launch the game, and enjoy your customizable quest tracker!  
 
 ## Planned Updates  
-- ~~**Persistence Between Loading Screens** – The tracker’s minimized/maximized state will be remembered.  ~~
+- DONE: ~~Persistence Between Loading Screens~~ – The tracker’s minimized/maximized state will be remembered. 
 
 ## Version History  
 - **0.2.0** – Maximization state now persists across loading screens.  
