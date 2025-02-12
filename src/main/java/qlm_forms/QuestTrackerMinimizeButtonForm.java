@@ -52,10 +52,10 @@ public abstract class QuestTrackerMinimizeButtonForm extends Form {
 		return necesse.engine.localization.Localization.translate("core", this.button_state_maximized ? "qtminimize" : "qtmaximize");
 	}
 	
-	public boolean toggleButtonState() {
+	public boolean setButtonState(boolean state) {
 		
-		// Change button state flag, and then the tooltip and textures based on the resulting state.
-	    this.button_state_maximized = !this.button_state_maximized;
+		// SET the button state flag, and then the tooltip and textures based on the resulting state.
+	    this.button_state_maximized = state;
 	    this.QTMFormButtonComponent.setTooltips(new StaticMessage(this.getButtonStateTooltipString()));
 	    this.QTMFormButtonComponent.textures = getButtonStateTextures();
 	    
@@ -63,8 +63,13 @@ public abstract class QuestTrackerMinimizeButtonForm extends Form {
 	    this.onToggleButtonState(this, this.button_state_maximized);
 	    
 	    // Debug information.
-	    if (this.formDebugState) QuestLogMinimizer.oops("Quest tracker minimizer button state toggled " + (this.button_state_maximized ? "on" : "off"));		
+	    if (this.formDebugState) QuestLogMinimizer.oops("Quest tracker minimizer button state set to " + (this.button_state_maximized ? "on" : "off"));		
 	   
+	    return this.button_state_maximized;
+	}
+	public boolean toggleButtonState() {		
+		// Toggle button state flag, and then the tooltip and textures based on the resulting state.
+	    this.setButtonState(!this.button_state_maximized);	  	   
 	    return this.button_state_maximized;
 	}
 	
