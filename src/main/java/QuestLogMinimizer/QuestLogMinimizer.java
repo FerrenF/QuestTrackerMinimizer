@@ -1,6 +1,8 @@
 package QuestLogMinimizer;
 
+import java.awt.Rectangle;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 import necesse.engine.GameLog;
 import necesse.engine.modLoader.annotations.ModEntry;
@@ -26,13 +28,13 @@ public class QuestLogMinimizer {
 	public static int COMPONENT_EVENT_PUSH_AMOUNT_X = -500;
 	private static final boolean debug_output = false; // setting this to true will produce a LOT of text.
 	
-	private MainGameFormManager mainGameFormManager; // unused/planned. i'm sure i'll have some use eventually.
 	private TrackedSidebarForm questTrackerComponent;
 	private QuestTrackerMinimizeButtonForm currentMinimizerForm;
 	private static QuestLogMinimizer CurrentInstance;
 	private boolean game_initialized = false;
-	private int stored_position_x = 0; // used for emergency position reset
 	private boolean stored_state = true; //  used to persist maximization between levels in the future.
+	private FormContentBox questTrackerSidebar;
+	private int originalHeight;
 
 	public static void oops(String how) {
 		GameLog.out.println(how);
@@ -51,15 +53,23 @@ public class QuestLogMinimizer {
     	
     	if (getQLMDebugState()) oops("LoadedEvent triggered.");
     	
-    	// Set class references to current FormManager and necessary components.
-    	this.mainGameFormManager = formManager;        	    	
-    	TrackedSidebarForm qf = findGameFormComponent(formManager.getComponents(), TrackedSidebarForm.class);
+    	// Set class references to current FormManager and necessary components.  
+
+    	TrackedSidebarForm qf = (TrackedSidebarForm)findGameFormComponent(formManager.getComponents(), (component)->component instanceof TrackedSidebarForm);
+    	
+    	FormContentBox qfSidebar = (FormContentBox)findGameFormComponent(formManager.getComponents(), (component)->{
+    		if(component instanceof FormContentBox) {
+    			return ((FormContentBox)component).hasComponent(qf);
+    		}
+    		return false;
+    	});
+    	
     	if(qf == null) {
     		if (getQLMDebugState()) oops("Couldn't find the TrackedSidebarForm responsible for quests. Well shid. ");
     		return;
     	}
     	this.questTrackerComponent = qf;
-    	
+    	this.questTrackerSidebar = qfSidebar;
     	QuestTrackerMinimizeButtonForm nf = new QuestTrackerMinimizeButtonForm() {
 			@Override
 			public void onToggleButtonState(QuestTrackerMinimizeButtonForm var1, boolean var2) {
@@ -84,9 +94,6 @@ public class QuestLogMinimizer {
     	if (this.questTrackerComponent == null)return;
     	if (getQLMDebugState()) oops("Form Update Event Called");
     	   	
-    	// Set class references to current FormManager.
-    	this.mainGameFormManager = formManager;         	 	
-    	    	
     	// If our minimizer button is not on the quest tracker, then we should re-add it.
     	if(!this.questTrackerComponent.hasComponent(this.currentMinimizerForm)) {
     		QuestTrackerMinimizeButtonForm nf = new QuestTrackerMinimizeButtonForm() {
@@ -111,8 +118,23 @@ public class QuestLogMinimizer {
     public void qlmToggleEventTriggered(QuestTrackerMinimizeButtonForm source, boolean state){
     	if (getQLMDebugState()) oops("qlmToggleEventTriggered method called with button state "+String.valueOf(state));
     	this.setStoredState(state);
-    	this.doEventBump(state);    		
+    	this.doEventBump(state);  
+    	
+    	Rectangle c = this.questTrackerSidebar.getContentBox();
+    	if(!state) {
+    		this.originalHeight = this.questTrackerSidebar.getContentBox().height;    		
+    		c.height = 250;	
+    		this.questTrackerSidebar.setContentBox(c);
+    	} else {
+    		c.height = this.questTrackerSidebar.getContentBoxToFitComponents().height;
+    		this.questTrackerSidebar.setContentBox(c);	
+    	}
+    	
+    	
+    	
+    	
     }
+    
     public void doInitialComponentBump() {
     	if (this.questTrackerComponent == null)return;    	
     	for (FormComponent f : this.questTrackerComponent.getComponents()) {
@@ -125,7 +147,9 @@ public class QuestLogMinimizer {
     	    }
     	}
     }
-    public void doEventBump(boolean state) {
+    
+    public void doEventBump(boolean state) {    	
+    	
     	for (FormComponent f : this.questTrackerComponent.getComponents()) {
     	    if (f instanceof FormQuestTrackedComponent) {
     	    	FormQuestTrackedComponent positionContainer = (FormQuestTrackedComponent) f;
@@ -159,17 +183,16 @@ public class QuestLogMinimizer {
     // This method recurses through the collection of FormComponents, and if those components also have components - recurses through those too.
     // It's great for discovering the structure of how forms are arranged in the MainGameFormManager
     // It's also resource intensive, so optimally we only use it once on initialization.
-    public static <T extends FormComponent> T findGameFormComponent(Collection<FormComponent> currentComponents, Class<T> targetClass) {    
+    public static FormComponent findGameFormComponent(Collection<FormComponent> currentComponents, Predicate<FormComponent> predicate) {    
         if (currentComponents == null) {
         	if (getQLMDebugState()) oops("Attempt to retrieve main form components resulted in null.");
             return null;
         }    
         
-        for (FormComponent f : currentComponents) {
-            
+        for (FormComponent f : currentComponents) {            
         	if (getQLMDebugState()) oops("findGameFormComponent found: " + f.getClass().descriptorString() );          
 
-            T result = findGameFormComponentRecursive(f, targetClass);
+        	FormComponent result = findGameFormComponentRecursive(f, predicate);
             if (result != null) {
                 return result;
             }
@@ -178,10 +201,10 @@ public class QuestLogMinimizer {
         return null;
     }
 
-    private static <T extends FormComponent> T findGameFormComponentRecursive(FormComponent component, Class<T> targetClass) {
-        if (targetClass.isInstance(component)) {
+    private static FormComponent findGameFormComponentRecursive(FormComponent component, Predicate<FormComponent> predicate) {
+        if (predicate.test(component)) {
         	if (getQLMDebugState()) oops("Found target component: " + component.getClass().getSimpleName());
-            return targetClass.cast(component);
+            return component;
         }
    
         if (getQLMDebugState()) oops("Searching inside: " + component.getClass().descriptorString() );
@@ -189,7 +212,7 @@ public class QuestLogMinimizer {
         if (component instanceof FormComponentListTyped) {
         	if (getQLMDebugState()) oops("Recursing into FormComponentList");
             for (FormComponent subComponent : ((FormComponentList) component).getComponentList()) {            	        	 
-                T result = findGameFormComponentRecursive(subComponent, targetClass);
+            	FormComponent result = findGameFormComponentRecursive(subComponent, predicate);
                 if (result != null) {
                     return result;
                 }
@@ -199,7 +222,7 @@ public class QuestLogMinimizer {
         if (component instanceof FormContentBox) {
         	if (getQLMDebugState()) oops("Recursing into FormContentBox");
             for (FormComponent subComponent : ((FormContentBox) component).getComponentList()) {
-                T result = findGameFormComponentRecursive(subComponent, targetClass);
+            	FormComponent result = findGameFormComponentRecursive(subComponent, predicate);
                 if (result != null) {
                     return result;
                 }
